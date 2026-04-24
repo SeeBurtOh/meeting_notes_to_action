@@ -1,0 +1,9 @@
+{
+  "name": "meeting-notes-to-action-items",
+  "version": "1.0.0",
+  "description": "Turn raw meeting notes into summaries, action items, risks, and follow-ups.",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  }
+}

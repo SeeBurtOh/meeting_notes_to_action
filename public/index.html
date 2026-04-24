@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Meeting Notes to Action Items</title>
+    <meta
+      name="description"
+      content="Transform raw meeting notes into summaries, action items, decisions, and risks."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=DM+Serif+Display:ital@0;1&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">AI Workflow Demo</p>
+          <h1>Turn raw meeting notes into clean next steps.</h1>
+          <p class="lede">
+            Paste rough notes from a call, standup, or planning session and
+            generate a structured summary, action items, risks, and decisions.
+          </p>
+          <div class="hero-pills">
+            <span>Useful</span>
+            <span>Portfolio-ready</span>
+            <span>OpenAI-compatible</span>
+          </div>
+        </div>
+        <aside class="hero-card">
+          <p class="card-label">Why this project matters</p>
+          <ul>
+            <li>Shows practical AI workflow design</li>
+            <li>Demonstrates structured output handling</li>
+            <li>Easy for employers and clients to understand</li>
+          </ul>
+        </aside>
+      </section>
+
+      <section class="workspace">
+        <div class="panel input-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Input</p>
+              <h2>Meeting Notes</h2>
+            </div>
+            <button id="load-sample" class="button button-secondary" type="button">
+              Load Sample
+            </button>
+          </div>
+          <label class="sr-only" for="notes-input">Meeting notes</label>
+          <textarea
+            id="notes-input"
+            placeholder="Paste meeting notes here..."
+          ></textarea>
+          <div class="actions">
+            <button id="analyze-button" class="button button-primary" type="button">
+              Analyze Notes
+            </button>
+            <p id="status-text" class="status-text">
+              Demo mode works immediately. Add an OpenAI API key to enable live AI output.
+            </p>
+          </div>
+        </div>
+
+        <div class="panel output-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Output</p>
+              <h2>Structured Results</h2>
+            </div>
+            <span id="mode-badge" class="mode-badge">Waiting</span>
+          </div>
+
+          <div class="results-grid">
+            <article class="result-card result-card-wide">
+              <h3>Summary</h3>
+              <p id="summary-output">
+                Results will appear here after analysis.
+              </p>
+            </article>
+
+            <article class="result-card">
+              <h3>Action Items</h3>
+              <div id="actions-output" class="list-output"></div>
+            </article>
+
+            <article class="result-card">
+              <h3>Risks</h3>
+              <div id="risks-output" class="list-output"></div>
+            </article>
+
+            <article class="result-card result-card-wide">
+              <h3>Decisions</h3>
+              <div id="decisions-output" class="list-output"></div>
+            </article>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>

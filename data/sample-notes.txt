@@ -1,0 +1,9 @@
+Monday project sync
+
+- Chris will send the revised proposal by Friday.
+- Jamie needs to confirm budget approval with finance next week.
+- We agreed to simplify the onboarding flow before launch.
+- There is a risk that the design handoff could be delayed if final copy is not approved by Thursday.
+- Morgan will update the timeline and share it with the client.
+- Decision: phase two reporting dashboard is moving out of the initial release.
+- Concern: analytics requirements are still a little unclear.
