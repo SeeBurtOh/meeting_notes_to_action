@@ -22,9 +22,9 @@ function renderList(container, items, formatter) {
 function setLoadingState(isLoading) {
   analyzeButton.disabled = isLoading;
   analyzeButton.textContent = isLoading ? "Analyzing..." : "Analyze Notes";
-  statusText.textContent = isLoading
-    ? "Processing notes and creating structured output..."
-    : "Demo mode works immediately. Add an OpenAI API key to enable live AI output.";
+  if (isLoading) {
+    statusText.textContent = "Processing notes and creating structured output...";
+  }
 }
 
 async function analyzeNotes() {

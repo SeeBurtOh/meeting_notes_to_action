@@ -1,5 +1,6 @@
 import http from "node:http";
 import { readFile } from "node:fs/promises";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -7,6 +8,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const publicDir = path.join(__dirname, "public");
 const samplePath = path.join(__dirname, "data", "sample-notes.txt");
+const envPath = path.join(__dirname, ".env");
 
 const mimeTypes = {
   ".html": "text/html; charset=utf-8",
@@ -16,11 +18,86 @@ const mimeTypes = {
   ".txt": "text/plain; charset=utf-8",
 };
 
+function loadEnvFile() {
+  if (!existsSync(envPath)) {
+    return;
+  }
+
+  const file = readFileSync(envPath, "utf8");
+  const lines = file.split(/\r?\n/);
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) {
+      continue;
+    }
+
+    const separator = trimmed.indexOf("=");
+    if (separator === -1) {
+      continue;
+    }
+
+    const key = trimmed.slice(0, separator).trim();
+    const rawValue = trimmed.slice(separator + 1).trim();
+    const value = rawValue.replace(/^['"]|['"]$/g, "");
+
+    if (!(key in process.env)) {
+      process.env[key] = value;
+    }
+  }
+}
+
+loadEnvFile();
+
 function sendJson(response, statusCode, payload) {
   response.writeHead(statusCode, {
     "Content-Type": "application/json; charset=utf-8",
   });
   response.end(JSON.stringify(payload));
+}
+
+function parseStructuredResult(data) {
+  if (data.output_parsed && typeof data.output_parsed === "object") {
+    return data.output_parsed;
+  }
+
+  const outputs = Array.isArray(data.output) ? data.output : [];
+
+  for (const item of outputs) {
+    if (!Array.isArray(item.content)) {
+      continue;
+    }
+
+    for (const content of item.content) {
+      if (content.type === "refusal" && content.refusal) {
+        throw new Error(`OpenAI refused the request: ${content.refusal}`);
+      }
+
+      if (content.parsed && typeof content.parsed === "object") {
+        return content.parsed;
+      }
+
+      if (content.json && typeof content.json === "object") {
+        return content.json;
+      }
+
+      if (content.type === "output_text" && typeof content.text === "string" && content.text.trim()) {
+        return JSON.parse(content.text);
+      }
+    }
+  }
+
+  if (typeof data.output_text === "string" && data.output_text.trim()) {
+    return JSON.parse(data.output_text);
+  }
+
+  const contentTypes = outputs.flatMap((item) =>
+    Array.isArray(item.content) ? item.content.map((content) => content.type || "unknown") : ["no-content"]
+  );
+
+  throw new Error(
+    `OpenAI returned no parseable structured content. Content types seen: ${contentTypes.join(", ") || "none"}.`
+  );
 }
 
 async function serveStatic(requestPath, response) {
@@ -153,21 +230,7 @@ export async function analyzeWithOpenAI(notes) {
     return buildDemoAnalysis(notes);
   }
 
-  const prompt = `
-You extract structured meeting outputs.
-Return valid JSON with this exact shape:
-{
-  "mode": "openai",
-  "summary": "short paragraph",
-  "actionItems": [{"task":"", "owner":"", "deadline":""}],
-  "risks": ["", ""],
-  "decisions": ["", ""]
-}
-
-If information is missing, say "Not specified".
-Meeting notes:
-${notes}
-  `.trim();
+  const model = process.env.OPENAI_MODEL || "gpt-5.4-mini";
 
   const result = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
@@ -176,8 +239,60 @@ ${notes}
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      model: "gpt-4.1-mini",
-      input: prompt,
+      model,
+      input: [
+        {
+          role: "developer",
+          content:
+            "Extract structured meeting outputs. If information is missing, use 'Not specified'.",
+        },
+        {
+          role: "user",
+          content: `Analyze these meeting notes and return structured JSON.\n\n${notes}`,
+        },
+      ],
+      text: {
+        format: {
+          type: "json_schema",
+          name: "meeting_analysis",
+          strict: true,
+          schema: {
+            type: "object",
+            additionalProperties: false,
+            properties: {
+              mode: {
+                type: "string",
+                const: "openai",
+              },
+              summary: {
+                type: "string",
+              },
+              actionItems: {
+                type: "array",
+                items: {
+                  type: "object",
+                  additionalProperties: false,
+                  properties: {
+                    task: { type: "string" },
+                    owner: { type: "string" },
+                    deadline: { type: "string" },
+                  },
+                  required: ["task", "owner", "deadline"],
+                },
+              },
+              risks: {
+                type: "array",
+                items: { type: "string" },
+              },
+              decisions: {
+                type: "array",
+                items: { type: "string" },
+              },
+            },
+            required: ["mode", "summary", "actionItems", "risks", "decisions"],
+          },
+        },
+      },
     }),
   });
 
@@ -187,13 +302,7 @@ ${notes}
   }
 
   const data = await result.json();
-  const text = data.output_text;
-
-  try {
-    return JSON.parse(text);
-  } catch {
-    throw new Error("OpenAI returned a response that was not valid JSON.");
-  }
+  return parseStructuredResult(data);
 }
 
 async function handleAnalyze(request, response) {
@@ -215,8 +324,10 @@ async function handleAnalyze(request, response) {
       const analysis = await analyzeWithOpenAI(notes);
       sendJson(response, 200, analysis);
     } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Unexpected server error.";
       sendJson(response, 500, {
-        error: error instanceof Error ? error.message : "Unexpected server error.",
+        error: message,
       });
     }
   });
