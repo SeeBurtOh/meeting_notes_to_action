@@ -61,10 +61,11 @@ meeting-notes-to-action-items/
 
 ## How to run the project
 
-### 1. Open the project folder
+### 1. Clone the repository
 
 ```bash
-cd "/Users/cburto/projects/My Website/meeting-notes-to-action-items"
+git clone <repo-url>
+cd meeting-notes-to-action-items
 ```
 
 ### 2. Start the server
