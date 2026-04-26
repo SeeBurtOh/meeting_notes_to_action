@@ -2,6 +2,8 @@
 
 Turn rough meeting notes into a clean summary, action items, risks, and decisions.
 
+![Meeting Notes to Action Items banner](./assets/readme-banner.svg)
+
 This is a small AI workflow project built for a professional portfolio. The goal is to show a practical business use case, a polished interface, and a clear example of structured LLM output without requiring a large or complicated codebase.
 
 ## Project overview
