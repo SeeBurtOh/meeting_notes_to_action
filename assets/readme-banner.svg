@@ -41,12 +41,12 @@
   <text x="112" y="382" fill="#B3BEC8" font-family="Arial, Helvetica, sans-serif" font-size="26">
     Turn raw notes into summaries, action items, risks, and decisions.
   </text>
-  <text x="112" y="422" fill="#B3BEC8" font-family="Arial, Helvetica, sans-serif" font-size="26">
-    Built with Node.js, vanilla JS, and OpenAI structured outputs.
+  <text x="112" y="422" fill="#B3BEC8" font-family="Arial, Helvetica, sans-serif" font-size="24">
+    Built with Node.js, vanilla JS, and OpenAI structured JSON outputs.
   </text>
 
-  <rect x="112" y="470" width="176" height="44" rx="22" fill="rgba(122,215,200,0.16)" stroke="rgba(122,215,200,0.4)"/>
-  <text x="145" y="498" fill="#D8FFF8" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700">
+  <rect x="112" y="470" width="220" height="44" rx="22" fill="rgba(122,215,200,0.16)" stroke="rgba(122,215,200,0.4)"/>
+  <text x="140" y="498" fill="#D8FFF8" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700">
     Demo + Live AI
   </text>
 
